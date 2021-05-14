@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Locale;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 public class Main implements ActionListener {
@@ -18,17 +19,32 @@ public class Main implements ActionListener {
     private static JTextField wagaText;
     private static JLabel wynikLabel;
 
+    private static JButton obliczButtonRandom;
+    private static JLabel seedRandom;
+    private static JTextField seedTextRandom;
+    private static JLabel plecakLabelRandom;
+    private static JButton plecakButtonRandom;
+    private static JLabel wartoscLabelRandom;
+    private static JTextField wartoscTextRandom;
+    private static JLabel wagaLabelRandom;
+    private static JTextField wagaTextRandom;
+
 
     // ilosc wprowadzonych danych
     private int iloscDanych(String src)
     {
-        // okreslenie ilosci danych
         int SIZE = 0;
-        for (int i = 0; i < src.length(); i++)
+        if(src.length()>0)
         {
-            if (src.charAt(i) == ' ')
-                SIZE++;
+            // okreslenie ilosci danych
+            for (int i = 0; i < src.length(); i++)
+            {
+                if (src.charAt(i) == ' ')
+                    SIZE++;
+            }
+            SIZE++;
         }
+
         return SIZE;
     }
 
@@ -39,7 +55,15 @@ public class Main implements ActionListener {
 
         for (int i =0; i< src.length();i++)
         {
-            if(src.charAt(i) == ' ') {
+            if(src.charAt(i) == ' ')
+            {
+                tab[index] = Integer.parseInt(temp);
+                index++;
+                temp = "";
+            }
+            else if(i == src.length()-1)
+            {
+                temp += src.charAt(i);
                 tab[index] = Integer.parseInt(temp);
                 index++;
                 temp = "";
@@ -54,8 +78,6 @@ public class Main implements ActionListener {
     //algorytm bierze po kolei najwieksze wartosci dopoki mieszcza sie w plecaku
     private void Algorytm(int _pojemnosc, int [] _wartosc, int [] _waga, int _size)
     {
-
-
         int [] kolejnosc = new int[_size];
         for (int i = 0; i < _size; i++)
         {
@@ -96,7 +118,6 @@ public class Main implements ActionListener {
         {
             if(kolejnosc[i] != 999999){
                 wybrane += String.valueOf(_wartosc[kolejnosc[i]]);
-                System.out.print("(");
                 wybrane += "(";
                 wybrane += String.valueOf(_waga[kolejnosc[i]]);
                 wybrane += ") ";
@@ -109,15 +130,23 @@ public class Main implements ActionListener {
 
     public static void main(String[] args) {
 
+        long liczba = 500;
+        RandomNumberGenerator random = new RandomNumberGenerator(liczba);
+        //int y = random.nextInt(1,101);
+        //int x = ThreadLocalRandom.current().nextInt(1,101);
+        //System.out.println(y);
+
+
 	    JPanel panel = new JPanel();
 	    JFrame frame = new JFrame();
-	    frame.setSize(600,400);
+	    frame.setSize(800,450);
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    frame.add(panel);
 	    frame.setTitle("Problem plecakowy");
 
 	    panel.setLayout(null);
 
+	    // recznie
 	    plecakLabel = new JLabel("Pojemność plecaka");
 	    plecakLabel.setBounds(10,20,165,25);
 	    panel.add(plecakLabel);
@@ -142,13 +171,53 @@ public class Main implements ActionListener {
         wagaText.setBounds(180,140,165,25);
         panel.add(wagaText);
 
+        //RANODOMOWO
+        plecakLabelRandom = new JLabel("Losuj pojemność plecaka");
+        plecakLabelRandom.setBounds(400,20,165,25);
+        panel.add(plecakLabelRandom);
+
+        plecakButtonRandom = new JButton("Losuj");
+        plecakButtonRandom.setBounds(600,20,80,25);
+        panel.add(plecakButtonRandom);
+        plecakButtonRandom.addActionListener(new Main());
+
+        wartoscLabelRandom = new JLabel("Liczba losowanych wartości");
+        wartoscLabelRandom.setBounds(400,80,165,25);
+        panel.add(wartoscLabelRandom);
+
+        wartoscTextRandom = new JTextField(20);
+        wartoscTextRandom.setBounds(600,80,40,25);
+        panel.add(wartoscTextRandom);
+
+        wagaLabelRandom = new JLabel("Liczba losowanych wag");
+        wagaLabelRandom.setBounds(400,140,165,25);
+        panel.add(wagaLabelRandom);
+
+        wagaTextRandom = new JTextField(20);
+        wagaTextRandom.setBounds(600,140,40,25);
+        panel.add(wagaTextRandom);
+
+        seedRandom = new JLabel("Podaj seed");
+        seedRandom.setBounds(400,200,165,25);
+        panel.add(seedRandom);
+
+        seedTextRandom = new JTextField("500",20);
+        seedTextRandom.setBounds(600,200,40,25);
+        panel.add(seedTextRandom);
+
+        obliczButtonRandom = new JButton("Losuj");
+        obliczButtonRandom.setBounds(600,260,80,25);
+        panel.add(obliczButtonRandom);
+        obliczButtonRandom.addActionListener(new Main());
+        // przycisk
+
         obliczButton = new JButton("Oblicz");
-        obliczButton.setBounds(180,200,80,25);
+        obliczButton.setBounds(180,260,80,25);
         panel.add(obliczButton);
         obliczButton.addActionListener(new Main());
 
-        wynikLabel = new JLabel("");
-        wynikLabel.setBounds(10,300,590,50);
+        wynikLabel = new JLabel("Wybierz:");
+        wynikLabel.setBounds(10,350,790,50);
         panel.add(wynikLabel);
 
         frame.setVisible(true);
@@ -165,13 +234,10 @@ public class Main implements ActionListener {
         {
             int plecak = Integer.parseInt(plecakText.getText().toString());
             String wartosc = wartoscText.getText().toString();
-            wartosc += " ";
             String waga = wagaText.getText().toString();
-            waga += " ";
 
             // ilosc danych wprowadzonych w polu wartosci przedmiotow (musi byc tyle samo co w wadze)
             int SIZE = iloscDanych(wartosc);
-
             // wpisanie liczb do tablicy z int'ami
             int [] wartoscArr = new int [SIZE];
             zapiszDoTablicy(wartosc,wartoscArr,SIZE);
@@ -184,12 +250,84 @@ public class Main implements ActionListener {
             // jesli wprowadzono rozne ilosci wag i wartosci
             if (SIZE != SIZE2)
             {
-                wynikLabel.setText("Wprowadzono niepoprawne dane (ilosc wartosci przedmiotu oraz ilosc wag jest rozna)!");
+                wynikLabel.setText("Wprowadzono niepoprawne dane (ilosc wartosci przedmiotu oraz ilosc wag jest rozna!)");
             }
 
             // problem plecakowy
             Algorytm(plecak,wartoscArr,wagaArr,SIZE);
 
+            if(wynikLabel.getText() == "Wybierz: ")
+            {
+                wynikLabel.setText("Niczego nie zmiescisz do plecaka.");
+            }
+        }
+
+        if(source == plecakButtonRandom)
+        {
+            int wynik = ThreadLocalRandom.current().nextInt(50,301);
+            plecakText.setText(String.valueOf(wynik));
+        }
+
+        if(source == obliczButtonRandom)
+        {
+            int wartosc = 0;
+            int waga = 0;
+            int seed = 0;
+
+            String temp = "";
+            temp = wartoscTextRandom.getText().toString();
+            if(temp.length() > 0)
+            {
+                wartosc = Integer.parseInt(wartoscTextRandom.getText().toString());
+            }
+            temp = wagaTextRandom.getText().toString();
+            if(temp.length() > 0)
+            {
+                waga = Integer.parseInt(wagaTextRandom.getText().toString());
+            }
+            temp = seedTextRandom.getText().toString();
+            if(temp.length() > 0)
+            {
+                seed = Integer.parseInt(seedTextRandom.getText().toString());
+            }
+
+            if(wartosc!=0 && waga!=0 && wartosc!=waga)
+            {
+                wynikLabel.setText("Wprowadzono niepoprawne dane (liczba losowanych wartości musi być taka sama jak liczba losowanych wag!)");
+            }
+            if(seed <= 0)
+            {
+                wynikLabel.setText("Wprowadzono niepoprawne dane (wartosc seed musi myc wieksza niz 0)");
+            }
+
+            if(wartosc >0)
+            {
+                // 1 pole tekstowe
+                String wynik = "";
+                int los = 0;
+                for (int i = 0; i < wartosc; i++)
+                {
+                    los = ThreadLocalRandom.current().nextInt(1,301);
+                    wynik += String.valueOf(los);
+                    if(i != wartosc-1)
+                        wynik+=" ";
+                }
+                wartoscText.setText(String.valueOf(wynik));
+            }
+
+            if(waga > 0)
+            {
+                // 2 pole tekstowe
+                String wynik = "";
+                int los = 0;
+                for (int i = 0; i < waga; i++) {
+                    los = ThreadLocalRandom.current().nextInt(1, 301);
+                    wynik += String.valueOf(los);
+                    if(i != wartosc-1)
+                        wynik+=" ";
+                }
+                wagaText.setText(String.valueOf(wynik));
+            }
         }
     }
 }
